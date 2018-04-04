@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private AppCompatButton iniciarbtn;
 
-    private AppCompatTextView registrarbrn;
+    private AppCompatTextView generaractbtn;
 
     private InputValidation inputValidation;
     private DatabaseHelper databaseHelper;
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         iniciarbtn = (AppCompatButton) findViewById(R.id.iniciarbtn);
 
-        registrarbrn = (AppCompatTextView) findViewById(R.id.registrarbtn);
+        generaractbtn = (AppCompatTextView) findViewById(R.id.generaractbtn);
 
     }
 
@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void initListeners() {
         iniciarbtn.setOnClickListener(this);
-        registrarbrn.setOnClickListener(this);
+        generaractbtn.setOnClickListener(this);
     }
 
     /**
@@ -91,10 +91,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.iniciarbtn:
                 verifyFromSQLite();
                 break;
-            case R.id.registrarbtn:
+            case R.id.generaractbtn:
                 // Navigate to RegisterActivity
-                Intent intentRegister = new Intent(getApplicationContext(), RegisterActivity.class);
-                startActivity(intentRegister);
+                Intent intentGenerator = new Intent(getApplicationContext(), GenerateQRActivity.class);
+                startActivity(intentGenerator);
                 break;
         }
     }
@@ -114,9 +114,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 , passtxt.getText().toString().trim())) {
 
 
-            Intent accountsIntent = new Intent(this, UsersListActivity.class);
-            accountsIntent.putExtra("Name", usertxt.getText().toString().trim());
-            emptyInputEditText();
+            Intent accountsIntent = new Intent(this, QrScannerActivity.class);
             startActivity(accountsIntent);
 
 

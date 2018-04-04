@@ -12,11 +12,10 @@
         android:layout_gravity="center_horizontal"
         android:padding="8dp">
 
-        <SurfaceView
-            android:id="@+id/camera_view"
-            android:layout_width="640px"
-            android:layout_height="480px"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Escaner"
+            android:onClick="QrScanner"/>
     </LinearLayout>
 </LinearLayout>

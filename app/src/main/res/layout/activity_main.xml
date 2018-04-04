@@ -57,12 +57,12 @@
             android:layout_gravity="center"/>
 
         <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/registrarbtn"
+            android:id="@+id/generaractbtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:paddingTop="5dp"
-            android:text="Registrar" />
+            android:text="Generar QR" />
 
     </android.support.v7.widget.LinearLayoutCompat>
 </android.support.v4.widget.NestedScrollView>
