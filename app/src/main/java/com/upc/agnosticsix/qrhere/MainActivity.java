@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 , passtxt.getText().toString().trim())) {
 
 
-            Intent accountsIntent = new Intent(this, QrScannerActivity.class);
+            Intent accountsIntent = new Intent(this, EventsListActivity.class);
             startActivity(accountsIntent);
 
 

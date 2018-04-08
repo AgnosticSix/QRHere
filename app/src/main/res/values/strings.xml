@@ -1,10 +1,17 @@
 <resources>
     <string name="app_name">QRHere</string>
-    <string name="text_accounts">All Accounts</string>
+    <string name="text_events">All Events</string>
+    <string name="text_students">All Students</string>
     <string name="hint_username">Username</string>
     <string name="hint_email">Email</string>
     <string name="hint_password">Password</string>
     <string name="hint_confirm_password">Confirm Password</string>
+    <string name="hint_eventname">Nombre</string>
+    <string name="hint_eventdesc">Descripcion</string>
+    <string name="hint_eventcupo">Cupo</string>
+    <string name="hint_matricula">Matricula</string>
+    <string name="hint_student">Nombre</string>
+    <string name="hint_ing">Carrera</string>
     <string name="text_login">Login</string>
     <string name="text_register">Register</string>
     <string name="error_message_name">Enter Full Name</string>

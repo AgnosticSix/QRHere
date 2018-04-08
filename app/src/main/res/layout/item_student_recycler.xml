@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     card_view:cardCornerRadius="4dp">
-
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,14 +21,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
-                android:text="@string/hint_username" />
+                android:text="@string/hint_matricula"
+                android:textColor="@color/colorPrimary" />
 
             <android.support.v7.widget.AppCompatTextView
-                android:id="@+id/textViewName"
+                android:id="@+id/textViewMatricula"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/hint_username"
+                android:text="@string/hint_matricula"
                 android:textColor="@android:color/darker_gray" />
         </LinearLayout>
 
@@ -42,16 +43,41 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
-                android:text="@string/hint_password" />
+                android:text="@string/hint_student"
+                android:textColor="@color/colorPrimary" />
 
             <android.support.v7.widget.AppCompatTextView
-                android:id="@+id/textViewPassword"
+                android:id="@+id/textViewNombreS"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/hint_password"
+                android:text="@string/hint_student"
                 android:textColor="@android:color/darker_gray" />
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="@string/hint_ing"
+                android:textColor="@color/colorPrimary" />
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/textViewCarrera"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/hint_ing"
+                android:textColor="@android:color/darker_gray" />
+        </LinearLayout>
+
+
 
     </LinearLayout>
 
