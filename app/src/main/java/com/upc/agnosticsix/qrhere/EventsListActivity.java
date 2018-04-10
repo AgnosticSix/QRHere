@@ -1,6 +1,9 @@
 package com.upc.agnosticsix.qrhere;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -34,8 +37,9 @@ public class EventsListActivity extends AppCompatActivity implements ZXingScanne
     private List<Events> eventsList;
     private EventsRecyclerAdapter eventsRecyclerAdapter;
     private DatabaseHelper databaseHelper;
-    //private EventsRecyclerAdapter.OnItemClickListener listener;
     private ZXingScannerView mScannerView;
+    //private EventsRecyclerAdapter.OnItemClickListener listener;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +48,28 @@ public class EventsListActivity extends AppCompatActivity implements ZXingScanne
         getSupportActionBar().setTitle("");
         initViews();
         initObjects();
+    }
+
+    private void initViews() {
+        textViewNombre = (AppCompatTextView) findViewById(R.id.textViewNombre);
+        recyclerViewEvents = (RecyclerView) findViewById(R.id.recyclerViewEvents);
+    }
+
+    private void initObjects() {
+        eventsList = new ArrayList<>();
+        eventsRecyclerAdapter = new EventsRecyclerAdapter(eventsList);
+
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerViewEvents.setLayoutManager(mLayoutManager);
+        recyclerViewEvents.setItemAnimator(new DefaultItemAnimator());
+        recyclerViewEvents.setHasFixedSize(true);
+        recyclerViewEvents.setAdapter(eventsRecyclerAdapter);
+        databaseHelper = new DatabaseHelper(activity);
+
+        //String nameFromIntent = getIntent().getStringExtra("Nombre");
+        //textViewNombre.setText(nameFromIntent);
+
+        getDataFromSQLite();
     }
 
     public void QrScanner(View view){
@@ -77,35 +103,13 @@ public class EventsListActivity extends AppCompatActivity implements ZXingScanne
 
     }
 
-    private void initViews() {
-        textViewNombre = (AppCompatTextView) findViewById(R.id.textViewNombre);
-        recyclerViewEvents = (RecyclerView) findViewById(R.id.recyclerViewEvents);
-    }
-
-    private void initObjects() {
-        eventsList = new ArrayList<>();
-        eventsRecyclerAdapter = new EventsRecyclerAdapter(eventsList);
-
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
-        recyclerViewEvents.setLayoutManager(mLayoutManager);
-        recyclerViewEvents.setItemAnimator(new DefaultItemAnimator());
-        recyclerViewEvents.setHasFixedSize(true);
-        recyclerViewEvents.setAdapter(eventsRecyclerAdapter);
-        databaseHelper = new DatabaseHelper(activity);
-
-        //String nameFromIntent = getIntent().getStringExtra("Nombre");
-        //textViewNombre.setText(nameFromIntent);
-
-        getDataFromSQLite();
-    }
-
     private void getDataFromSQLite() {
         // AsyncTask is used that SQLite operation not blocks the UI Thread.
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
                 eventsList.clear();
-                //eventsList.addAll(databaseHelper.getAllUser());
+                //eventsList.addAll(databaseHelper.getAllEvents());
 
                 return null;
             }
@@ -118,5 +122,10 @@ public class EventsListActivity extends AppCompatActivity implements ZXingScanne
         }.execute();
     }
 
+    public boolean checkNetworkConnection(){
+        ConnectivityManager connectivityManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return (networkInfo != null && networkInfo.isConnected());
+    }
 
 }

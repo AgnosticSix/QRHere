@@ -5,6 +5,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import model.AlumnoEvento;
+import model.Events;
 import model.User;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,19 +25,41 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
     // User table name
     private static final String TABLE_USER = "user";
+    private static final String TABLE_EVENTS = "events";
+    private static final String TABLE_ALUMNOEVENTO = "alumnoevento";
+
 
     // User Table Columns names
     private static final String COLUMN_USER_ID = "user_id";
     private static final String COLUMN_USER_NAME = "user_name";
     private static final String COLUMN_USER_PASSWORD = "user_password";
+    private static final String COLUMN_EVENT_ID = "event_id";
+    private static final String COLUMN_EVENT_NAME = "event_name";
+    private static final String COLUMN_EVENT_DESCRIPTION = "event_description";
+    private static final String COLUMN_EVENT_CUPO = "event_cupo";
+    private static final String COLUMN_ALUMNO_ID = "student_id";
+    private static final String COLUMN_ALUMNO_MATRICULA = "student_matri";
+    private static final String COLUMN_ALUMNO_NOMBRE = "student_name";
+    private static final String COLUMN_ALUMNO_IDEVENTO = "student_idevento";
+    private static final String COLUMN_ALUMNO_CARRERA = "student_career";
 
     // create table sql query
     private String CREATE_USER_TABLE = "CREATE TABLE " + TABLE_USER + "("
             + COLUMN_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + COLUMN_USER_NAME + " TEXT,"
             + COLUMN_USER_PASSWORD + " TEXT" + ")";
 
+    private String CREATE_EVENTS_TABLE = "CREATE TABLE " + TABLE_EVENTS + "("
+            + COLUMN_EVENT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + COLUMN_EVENT_NAME + " TEXT,"
+            + COLUMN_EVENT_DESCRIPTION + " TEXT," + COLUMN_EVENT_CUPO + " TEXT" + ")";
+
+    private String CREATE_ALUMNOEVENTO_TABLE = "CREATE TABLE " + TABLE_ALUMNOEVENTO + "("
+            + COLUMN_ALUMNO_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + COLUMN_ALUMNO_MATRICULA + " TEXT,"
+            + COLUMN_ALUMNO_NOMBRE + " TEXT," + COLUMN_ALUMNO_IDEVENTO + " INTEGER," + COLUMN_ALUMNO_CARRERA + " TEXT" + ")";
+
     // drop table sql query
     private String DROP_USER_TABLE = "DROP TABLE IF EXISTS " + TABLE_USER;
+    private String DROP_EVENTS_TABLE = "DROP TABLE IF EXISTS " + TABLE_EVENTS;
+    private String DROP_ALUMNOEVENTO_TABLE = "DROP TABLE IF EXISTS " + TABLE_ALUMNOEVENTO;
 
     /**
      * Constructor
@@ -48,6 +73,8 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_USER_TABLE);
+        db.execSQL(CREATE_EVENTS_TABLE);
+        db.execSQL(CREATE_ALUMNOEVENTO_TABLE);
     }
 
 
@@ -56,26 +83,40 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
         //Drop User Table if exist
         db.execSQL(DROP_USER_TABLE);
+        db.execSQL(DROP_EVENTS_TABLE);
+        db.execSQL(DROP_ALUMNOEVENTO_TABLE);
 
         // Create tables again
         onCreate(db);
 
     }
 
-    /**
-     * This method is to create user record
-     *
-     * @param user
-     */
-    public void addUser(User user) {
+    public void addAlumnoEvento(AlumnoEvento alumnoEvento) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(COLUMN_USER_NAME, user.getName());
-        values.put(COLUMN_USER_PASSWORD, user.getPassword());
+        values.put(COLUMN_ALUMNO_MATRICULA, alumnoEvento.getMatricula());
+        values.put(COLUMN_ALUMNO_NOMBRE, alumnoEvento.getNombre());
+        values.put(COLUMN_ALUMNO_CARRERA, alumnoEvento.getCarrera());
+        values.put(COLUMN_ALUMNO_IDEVENTO, alumnoEvento.getIdEvento());
 
         // Inserting Row
-        db.insert(TABLE_USER, null, values);
+        db.insert(TABLE_ALUMNOEVENTO, null, values);
+        db.close();
+    }
+
+    public void updateAlummnoEvento(AlumnoEvento alumnoEvento) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_ALUMNO_MATRICULA, alumnoEvento.getMatricula());
+        values.put(COLUMN_ALUMNO_NOMBRE, alumnoEvento.getNombre());
+        values.put(COLUMN_ALUMNO_IDEVENTO, alumnoEvento.getIdEvento());
+        values.put(COLUMN_ALUMNO_CARRERA, alumnoEvento.getCarrera());
+
+        // updating row
+        db.update(TABLE_ALUMNOEVENTO, values, COLUMN_ALUMNO_ID + " = ?",
+                new String[]{String.valueOf(alumnoEvento.getId())});
         db.close();
     }
 
@@ -84,17 +125,19 @@ public class DatabaseHelper extends SQLiteOpenHelper{
      *
      * @return list
      */
-    public List<User> getAllUser() {
+    public List<AlumnoEvento> getAllStudents(String idevento) {
         // array of columns to fetch
         String[] columns = {
-                COLUMN_USER_ID,
-                COLUMN_USER_NAME,
-                COLUMN_USER_PASSWORD
+                COLUMN_ALUMNO_ID,
+                COLUMN_ALUMNO_MATRICULA,
+                COLUMN_ALUMNO_NOMBRE,
+                COLUMN_ALUMNO_IDEVENTO,
+                COLUMN_ALUMNO_CARRERA
         };
         // sorting orders
         String sortOrder =
-                COLUMN_USER_NAME + " ASC";
-        List<User> userList = new ArrayList<User>();
+                COLUMN_ALUMNO_NOMBRE + " ASC";
+        List<AlumnoEvento> studentsList = new ArrayList<AlumnoEvento>();
 
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -104,7 +147,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
          * SQL query equivalent to this query function is
          * SELECT user_id,user_name,user_email,user_password FROM user ORDER BY user_name;
          */
-        Cursor cursor = db.query(TABLE_USER, //Table to query
+        Cursor cursor = db.query(TABLE_ALUMNOEVENTO, //Table to query
                 columns,    //columns to return
                 null,        //columns for the WHERE clause
                 null,        //The values for the WHERE clause
@@ -116,50 +159,70 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         // Traversing through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
-                User user = new User();
-                user.setId(Integer.parseInt(cursor.getString(cursor.getColumnIndex(COLUMN_USER_ID))));
-                user.setName(cursor.getString(cursor.getColumnIndex(COLUMN_USER_NAME)));
-                user.setPassword(cursor.getString(cursor.getColumnIndex(COLUMN_USER_PASSWORD)));
+                AlumnoEvento alumnoEvento = new AlumnoEvento();
+                alumnoEvento.setId(Integer.parseInt(cursor.getString(cursor.getColumnIndex(COLUMN_ALUMNO_ID))));
+                alumnoEvento.setMatricula(cursor.getString(cursor.getColumnIndex(COLUMN_ALUMNO_MATRICULA)));
+                alumnoEvento.setNombre(cursor.getString(cursor.getColumnIndex(COLUMN_ALUMNO_NOMBRE)));
+                alumnoEvento.setIdEvento(Integer.parseInt(cursor.getString(cursor.getColumnIndex(COLUMN_ALUMNO_IDEVENTO))));
+                alumnoEvento.setCarrera(cursor.getString(cursor.getColumnIndex(COLUMN_ALUMNO_CARRERA)));
                 // Adding user record to list
-                userList.add(user);
+                studentsList.add(alumnoEvento);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+
+        // return students list
+        return studentsList;
+    }
+
+    public List<Events> getAllEvents() {
+        // array of columns to fetch
+        String[] columns = {
+                COLUMN_EVENT_ID,
+                COLUMN_EVENT_NAME,
+                COLUMN_EVENT_DESCRIPTION,
+                COLUMN_EVENT_CUPO
+        };
+        // sorting orders
+        String sortOrder =
+                COLUMN_EVENT_NAME + " ASC";
+        List<Events> eventsList = new ArrayList<Events>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // query the user table
+        /**
+         * Here query function is used to fetch records from user table this function works like we use sql query.
+         * SQL query equivalent to this query function is
+         * SELECT user_id,user_name,user_email,user_password FROM user ORDER BY user_name;
+         */
+        Cursor cursor = db.query(TABLE_EVENTS, //Table to query
+                columns,    //columns to return
+                null,        //columns for the WHERE clause
+                null,        //The values for the WHERE clause
+                null,       //group the rows
+                null,       //filter by row groups
+                sortOrder); //The sort order
+
+
+        // Traversing through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                Events events = new Events();
+                events.setId(Integer.parseInt(cursor.getString(cursor.getColumnIndex(COLUMN_EVENT_ID))));
+                events.setEvento(cursor.getString(cursor.getColumnIndex(COLUMN_EVENT_NAME)));
+                events.setDescripcion(cursor.getString(cursor.getColumnIndex(COLUMN_EVENT_DESCRIPTION)));
+                events.setCupo(cursor.getString(cursor.getColumnIndex(COLUMN_EVENT_CUPO)));
+                // Adding event record to list
+                eventsList.add(events);
             } while (cursor.moveToNext());
         }
         cursor.close();
         db.close();
 
         // return user list
-        return userList;
-    }
-
-    /**
-     * This method to update user record
-     *
-     * @param user
-     */
-    public void updateUser(User user) {
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_USER_NAME, user.getName());
-        values.put(COLUMN_USER_PASSWORD, user.getPassword());
-
-        // updating row
-        db.update(TABLE_USER, values, COLUMN_USER_ID + " = ?",
-                new String[]{String.valueOf(user.getId())});
-        db.close();
-    }
-
-    /**
-     * This method is to delete user record
-     *
-     * @param user
-     */
-    public void deleteUser(User user) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        // delete user record by id
-        db.delete(TABLE_USER, COLUMN_USER_ID + " = ?",
-                new String[]{String.valueOf(user.getId())});
-        db.close();
+        return eventsList;
     }
 
     /**

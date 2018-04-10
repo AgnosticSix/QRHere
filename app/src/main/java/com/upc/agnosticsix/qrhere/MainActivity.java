@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 verifyFromSQLite();
                 break;
             case R.id.generaractbtn:
-                // Navigate to RegisterActivity
+                // Navigate to GenerateQRActivity
                 Intent intentGenerator = new Intent(getApplicationContext(), GenerateQRActivity.class);
                 startActivity(intentGenerator);
                 break;

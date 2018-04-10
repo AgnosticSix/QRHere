@@ -4,7 +4,7 @@ public class AlumnoEvento {
     private int id;
     private String matricula;
     private String nombre;
-    private String evento;
+    private int idevento;
     private String carrera;
 
     public int getId() {
@@ -31,12 +31,12 @@ public class AlumnoEvento {
         this.nombre = nombre;
     }
 
-    public String getEvento() {
-        return evento;
+    public int getIdEvento() {
+        return idevento;
     }
 
-    public void setEvento(String evento) {
-        this.evento = evento;
+    public void setIdEvento(int idevento) {
+        this.idevento = idevento;
     }
 
     public String getCarrera() {
