@@ -34,11 +34,6 @@
         <activity
             android:name=".StudentsListActivity"
             android:screenOrientation="portrait" />
-        <receiver android:name="helpers.NetworkMonitor">
-            <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>
