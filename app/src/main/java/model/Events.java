@@ -1,5 +1,8 @@
 package model;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Events {
     private int id;
     private String evento;
@@ -33,4 +36,21 @@ public class Events {
     public String getCupo() { return cupo; }
 
     public void setCupo(String cupo) { this.cupo = cupo; }
+
+    public String toJSON(){
+
+        JSONObject jsonObject= new JSONObject();
+        try {
+            jsonObject.put("id", getId());
+            jsonObject.put("evento", getEvento());
+            jsonObject.put("descripcion", getDescripcion());
+            jsonObject.put("cupo", getCupo());
+
+            return jsonObject.toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return "";
+        }
+
+    }
 }

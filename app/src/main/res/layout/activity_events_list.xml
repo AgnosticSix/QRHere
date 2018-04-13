@@ -7,13 +7,6 @@
     android:orientation="vertical"
     tools:context=".EventsListActivity">
 
-    <Button
-        android:id="@+id/escanerbtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Escanear"
-        android:onClick="QrScanner"/>
-
     <android.support.v7.widget.AppCompatTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -9,12 +9,14 @@ import android.view.ViewGroup;
 import com.upc.agnosticsix.qrhere.R;
 
 import java.util.List;
+
+import model.Alumno;
 import model.AlumnoEvento;
 
 public class StudentsRecyclerAdapter extends RecyclerView.Adapter<StudentsRecyclerAdapter.StudentsViewHolder>{
-    private List<AlumnoEvento> studentsList;
+    private List<Alumno> studentsList;
 
-    public StudentsRecyclerAdapter(List<AlumnoEvento> studentsList) {
+    public StudentsRecyclerAdapter(List<Alumno> studentsList) {
         this.studentsList = studentsList;
     }
 
@@ -35,7 +37,7 @@ public class StudentsRecyclerAdapter extends RecyclerView.Adapter<StudentsRecycl
 
     @Override
     public int getItemCount() {
-        Log.v(StudentsRecyclerAdapter.class.getSimpleName(),""+studentsList.size());
+        //Log.v(StudentsRecyclerAdapter.class.getSimpleName(),""+studentsList.size());
         return studentsList.size();
     }
 

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -29,7 +30,7 @@ import me.dm7.barcodescanner.zxing.ZXingScannerView;
 import model.Events;
 import sql.DatabaseHelper;
 
-public class EventsListActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler{
+public class EventsListActivity extends AppCompatActivity{
 
     private AppCompatActivity activity = EventsListActivity.this;
     private AppCompatTextView textViewNombre;
@@ -38,6 +39,10 @@ public class EventsListActivity extends AppCompatActivity implements ZXingScanne
     private EventsRecyclerAdapter eventsRecyclerAdapter;
     private DatabaseHelper databaseHelper;
     private ZXingScannerView mScannerView;
+    private String test;
+    private Events events;
+    private String tag;
+    public int postId;
     //private EventsRecyclerAdapter.OnItemClickListener listener;
 
 
@@ -57,51 +62,34 @@ public class EventsListActivity extends AppCompatActivity implements ZXingScanne
 
     private void initObjects() {
         eventsList = new ArrayList<>();
-        eventsRecyclerAdapter = new EventsRecyclerAdapter(eventsList);
+        //eventsRecyclerAdapter = new EventsRecyclerAdapter(eventsList);
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerViewEvents.setLayoutManager(mLayoutManager);
         recyclerViewEvents.setItemAnimator(new DefaultItemAnimator());
         recyclerViewEvents.setHasFixedSize(true);
+        eventsRecyclerAdapter = new EventsRecyclerAdapter(getApplicationContext(), eventsList, new CustomItemClickListener() {
+            @Override
+            public void onItemClick(View view, int i) {
+                //Log.d(tag,"clicked position: " + eventsList.get(i).getId());
+                postId = eventsList.get(i).getId();
+                Intent intent = new Intent(activity, StudentsListActivity.class);
+                intent.putExtra("idevento", postId);
+                startActivity(intent);
+            }
+        });
+
         recyclerViewEvents.setAdapter(eventsRecyclerAdapter);
         databaseHelper = new DatabaseHelper(activity);
+        //events = new Events();
 
-        //String nameFromIntent = getIntent().getStringExtra("Nombre");
+        //String nameFromIntent = getIntent().getStringExtra("event_name");
         //textViewNombre.setText(nameFromIntent);
 
         getDataFromSQLite();
     }
 
-    public void QrScanner(View view){
-        mScannerView = new ZXingScannerView(this);   // Programmatically initialize the scanner view
-        setContentView(mScannerView);
-        mScannerView.setResultHandler(this); // Register ourselves as a handler for scan results.
-        mScannerView.startCamera();         // Start camera
-    }
 
-    @Override
-    public void onPause() {
-        try {
-            super.onPause();
-            mScannerView.stopCamera();   // Stop camera on pause
-        }
-        catch (Exception e){
-            return;
-        }
-    }
-
-    @Override
-    public void handleResult(Result rawResult) {
-        Log.e("handler", rawResult.getText());
-        Log.e("handler", rawResult.getBarcodeFormat().toString());
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Scan Result");
-        builder.setMessage(rawResult.getText());
-        AlertDialog alert1 = builder.create();
-        alert1.show();
-
-    }
 
     private void getDataFromSQLite() {
         // AsyncTask is used that SQLite operation not blocks the UI Thread.
@@ -109,7 +97,7 @@ public class EventsListActivity extends AppCompatActivity implements ZXingScanne
             @Override
             protected Void doInBackground(Void... params) {
                 eventsList.clear();
-                //eventsList.addAll(databaseHelper.getAllEvents());
+                eventsList.addAll(databaseHelper.getAllEvents());
 
                 return null;
             }
@@ -121,11 +109,4 @@ public class EventsListActivity extends AppCompatActivity implements ZXingScanne
             }
         }.execute();
     }
-
-    public boolean checkNetworkConnection(){
-        ConnectivityManager connectivityManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return (networkInfo != null && networkInfo.isConnected());
-    }
-
 }

@@ -1,11 +1,12 @@
 package model;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class AlumnoEvento {
     private int id;
-    private String matricula;
-    private String nombre;
+    private int idalumno;
     private int idevento;
-    private String carrera;
 
     public int getId() {
         return id;
@@ -15,35 +16,35 @@ public class AlumnoEvento {
         this.id = id;
     }
 
-    public String getMatricula() {
-        return matricula;
+    public int getIdalumno() {
+        return idalumno;
     }
 
-    public void setMatricula(String matricula) {
-        this.matricula = matricula;
+    public void setIdalumno(int idalumno) {
+        this.idalumno = idalumno;
     }
 
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public int getIdEvento() {
+    public int getIdevento() {
         return idevento;
     }
 
-    public void setIdEvento(int idevento) {
+    public void setIdevento(int idevento) {
         this.idevento = idevento;
     }
 
-    public String getCarrera() {
-        return carrera;
-    }
+    public String toJSON(){
 
-    public void setCarrera(String carrera) {
-        this.carrera = carrera;
+        JSONObject jsonObject= new JSONObject();
+        try {
+            jsonObject.put("id", getId());
+            jsonObject.put("idalumno", getIdalumno());
+            jsonObject.put("idevento", getIdevento());
+
+            return jsonObject.toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return "";
+        }
+
     }
 }

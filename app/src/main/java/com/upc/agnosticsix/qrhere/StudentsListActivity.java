@@ -1,5 +1,8 @@
 package com.upc.agnosticsix.qrhere;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -13,11 +16,14 @@ import android.view.View;
 
 import com.google.zxing.Result;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import adapters.StudentsRecyclerAdapter;
+import helpers.InputValidation;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
+import model.Alumno;
 import model.AlumnoEvento;
 import sql.DatabaseHelper;
 
@@ -27,8 +33,15 @@ public class StudentsListActivity extends AppCompatActivity implements ZXingScan
     private AppCompatTextView textViewNombre;
     private RecyclerView recyclerViewStudents;
     private List<AlumnoEvento> stuList;
+    private List<Alumno> studentList;
     private StudentsRecyclerAdapter studentsRecyclerAdapter;
     private DatabaseHelper databaseHelper;
+    private InputValidation inputValidation;
+    private String test;
+    private int idEvento, idAlumno, postId;
+    private int idEventoFromIntent;
+    private AlumnoEvento alumnoEvento;
+    private Alumno alumno;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +59,8 @@ public class StudentsListActivity extends AppCompatActivity implements ZXingScan
 
     private void initObjects() {
         stuList = new ArrayList<>();
-        studentsRecyclerAdapter = new StudentsRecyclerAdapter(stuList);
+        studentList = new ArrayList<>();
+        studentsRecyclerAdapter = new StudentsRecyclerAdapter(studentList);
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerViewStudents.setLayoutManager(mLayoutManager);
@@ -54,9 +68,15 @@ public class StudentsListActivity extends AppCompatActivity implements ZXingScan
         recyclerViewStudents.setHasFixedSize(true);
         recyclerViewStudents.setAdapter(studentsRecyclerAdapter);
         databaseHelper = new DatabaseHelper(activity);
+        inputValidation = new InputValidation(activity);
+        alumnoEvento = new AlumnoEvento();
 
-        String nameFromIntent = getIntent().getStringExtra("idevento");
-        textViewNombre.setText(nameFromIntent);
+
+
+        idEventoFromIntent = getIntent().getIntExtra("idevento", idEvento);
+        Log.d("eyw", "" + idEventoFromIntent);
+
+        //textViewNombre.setText(nameFromIntent);
 
         getDataFromSQLite();
     }
@@ -72,23 +92,37 @@ public class StudentsListActivity extends AppCompatActivity implements ZXingScan
     public void onPause() {
         try {
             super.onPause();
-            mScannerView.stopCamera();   // Stop camera on pause
-        }
-        catch (Exception e){
+            mScannerView.stopCamera();
+        }catch (Exception e){
             return;
         }
     }
 
     @Override
     public void handleResult(Result rawResult) {
-        Log.e("handler", rawResult.getText());
-        Log.e("handler", rawResult.getBarcodeFormat().toString());
+        test = rawResult.getText();
+        String a = databaseHelper.getAlumno(test);
 
+        idAlumno = Integer.parseInt(a);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Scan Result");
-        builder.setMessage(rawResult.getText());
-        AlertDialog alert1 = builder.create();
-        alert1.show();
+
+            //postId = stuList.get(idEvento).getIdevento();
+
+
+            alumnoEvento.setIdalumno(idAlumno);
+            alumnoEvento.setIdevento(idEventoFromIntent);
+
+
+            databaseHelper.addAlumnoEvento(alumnoEvento);
+            builder.setTitle("Success!");
+            builder.setMessage("Alumno " + test + " registrado");
+            AlertDialog alert1 = builder.create();
+            alert1.show();
+
+
+
+
+
 
     }
 
@@ -97,8 +131,10 @@ public class StudentsListActivity extends AppCompatActivity implements ZXingScan
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-                stuList.clear();
-                //stuList.addAll(databaseHelper.getAllStudents());
+                studentList.clear();
+                studentList.addAll(databaseHelper.getAllStudents(idEventoFromIntent));
+                Log.d("ey", "" + idEventoFromIntent);
+
 
                 return null;
             }
@@ -110,6 +146,4 @@ public class StudentsListActivity extends AppCompatActivity implements ZXingScan
             }
         }.execute();
     }
-
-
 }

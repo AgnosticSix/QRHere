@@ -1,5 +1,8 @@
 package model;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Created by mateo on 20/03/2018.
  */
@@ -31,5 +34,21 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String toJSON(){
+
+        JSONObject jsonObject= new JSONObject();
+        try {
+            jsonObject.put("id", getId());
+            jsonObject.put("username", getName());
+            jsonObject.put("password", getPassword());
+
+            return jsonObject.toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return "";
+        }
+
     }
 }

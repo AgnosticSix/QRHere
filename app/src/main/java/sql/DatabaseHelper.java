@@ -5,7 +5,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
+import model.Alumno;
 import model.AlumnoEvento;
 import model.Events;
 import model.User;
@@ -19,14 +21,16 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper{
     // Database Version
     private static final int DATABASE_VERSION = 1;
+    public static final String SERVER_URL = "";
 
     // Database Name
     private static final String DATABASE_NAME = "QrHereDB.db";
 
     // User table name
     private static final String TABLE_USER = "user";
-    private static final String TABLE_EVENTS = "events";
+    public static final String TABLE_EVENTS = "events";
     private static final String TABLE_ALUMNOEVENTO = "alumnoevento";
+    private static final String TABLE_ALUMNO = "alumno";
 
 
     // User Table Columns names
@@ -37,11 +41,13 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     private static final String COLUMN_EVENT_NAME = "event_name";
     private static final String COLUMN_EVENT_DESCRIPTION = "event_description";
     private static final String COLUMN_EVENT_CUPO = "event_cupo";
-    private static final String COLUMN_ALUMNO_ID = "student_id";
-    private static final String COLUMN_ALUMNO_MATRICULA = "student_matri";
-    private static final String COLUMN_ALUMNO_NOMBRE = "student_name";
-    private static final String COLUMN_ALUMNO_IDEVENTO = "student_idevento";
-    private static final String COLUMN_ALUMNO_CARRERA = "student_career";
+    private static final String COLUMN_ALUMNOEVENTO_ID = "ae_id";
+    private static final String COLUMN_ALUMNOEVENTO_IDALUMNO = "alumnoe_id";
+    private static final String COLUMN_ALUMNOEVENTO_IDEVENTO = "event_id";
+    private static final String COLUMN_ALUMNO_ID = "alumno_id";
+    private static final String COLUMN_ALUMNO_MATRICULA = "alumno_matricula";
+    private static final String COLUMN_ALUMNO_NOMBRE = "alumno_nombre";
+    private static final String COLUMN_ALUMNO_CARRERA = "alumno_carrera";
 
     // create table sql query
     private String CREATE_USER_TABLE = "CREATE TABLE " + TABLE_USER + "("
@@ -53,13 +59,18 @@ public class DatabaseHelper extends SQLiteOpenHelper{
             + COLUMN_EVENT_DESCRIPTION + " TEXT," + COLUMN_EVENT_CUPO + " TEXT" + ")";
 
     private String CREATE_ALUMNOEVENTO_TABLE = "CREATE TABLE " + TABLE_ALUMNOEVENTO + "("
+            + COLUMN_ALUMNOEVENTO_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + COLUMN_ALUMNOEVENTO_IDALUMNO + " INTEGER,"
+            + COLUMN_ALUMNO_NOMBRE + " TEXT" + ")";
+
+    private String CREATE_ALUMNO_TABLE = "CREATE TABLE " + TABLE_ALUMNO + "("
             + COLUMN_ALUMNO_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + COLUMN_ALUMNO_MATRICULA + " TEXT,"
-            + COLUMN_ALUMNO_NOMBRE + " TEXT," + COLUMN_ALUMNO_IDEVENTO + " INTEGER," + COLUMN_ALUMNO_CARRERA + " TEXT" + ")";
+            + COLUMN_ALUMNO_NOMBRE + " TEXT,"  + COLUMN_ALUMNO_CARRERA + " TEXT" + ")";
 
     // drop table sql query
     private String DROP_USER_TABLE = "DROP TABLE IF EXISTS " + TABLE_USER;
     private String DROP_EVENTS_TABLE = "DROP TABLE IF EXISTS " + TABLE_EVENTS;
     private String DROP_ALUMNOEVENTO_TABLE = "DROP TABLE IF EXISTS " + TABLE_ALUMNOEVENTO;
+    private String DROP_ALUMNO_TABLE = "DROP TABLE IF EXISTS " + TABLE_ALUMNO;
 
     /**
      * Constructor
@@ -75,6 +86,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         db.execSQL(CREATE_USER_TABLE);
         db.execSQL(CREATE_EVENTS_TABLE);
         db.execSQL(CREATE_ALUMNOEVENTO_TABLE);
+        db.execSQL(CREATE_ALUMNO_TABLE);
     }
 
 
@@ -85,6 +97,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         db.execSQL(DROP_USER_TABLE);
         db.execSQL(DROP_EVENTS_TABLE);
         db.execSQL(DROP_ALUMNOEVENTO_TABLE);
+        db.execSQL(DROP_ALUMNO_TABLE);
 
         // Create tables again
         onCreate(db);
@@ -95,10 +108,8 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(COLUMN_ALUMNO_MATRICULA, alumnoEvento.getMatricula());
-        values.put(COLUMN_ALUMNO_NOMBRE, alumnoEvento.getNombre());
-        values.put(COLUMN_ALUMNO_CARRERA, alumnoEvento.getCarrera());
-        values.put(COLUMN_ALUMNO_IDEVENTO, alumnoEvento.getIdEvento());
+        values.put(COLUMN_ALUMNOEVENTO_IDALUMNO, alumnoEvento.getIdalumno());
+        values.put(COLUMN_ALUMNOEVENTO_IDEVENTO, alumnoEvento.getIdevento());
 
         // Inserting Row
         db.insert(TABLE_ALUMNOEVENTO, null, values);
@@ -109,37 +120,38 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(COLUMN_ALUMNO_MATRICULA, alumnoEvento.getMatricula());
-        values.put(COLUMN_ALUMNO_NOMBRE, alumnoEvento.getNombre());
-        values.put(COLUMN_ALUMNO_IDEVENTO, alumnoEvento.getIdEvento());
-        values.put(COLUMN_ALUMNO_CARRERA, alumnoEvento.getCarrera());
+        values.put(COLUMN_ALUMNOEVENTO_IDALUMNO, alumnoEvento.getIdalumno());
+        values.put(COLUMN_ALUMNOEVENTO_IDEVENTO, alumnoEvento.getIdevento());
 
         // updating row
-        db.update(TABLE_ALUMNOEVENTO, values, COLUMN_ALUMNO_ID + " = ?",
+        db.update(TABLE_ALUMNOEVENTO, values, COLUMN_ALUMNOEVENTO_ID + " = ?",
                 new String[]{String.valueOf(alumnoEvento.getId())});
         db.close();
     }
 
-    /**
-     * This method is to fetch all user and return the list of user records
-     *
-     * @return list
-     */
-    public List<AlumnoEvento> getAllStudents(String idevento) {
+    public void deleteAlumnoEvento(AlumnoEvento alumnoEvento) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        // delete user record by id
+        db.delete(TABLE_ALUMNOEVENTO, COLUMN_ALUMNOEVENTO_ID + " = ?",
+                new String[]{String.valueOf(alumnoEvento.getId())});
+        db.close();
+    }
+
+    public String getAlumno(String matricula){
         // array of columns to fetch
         String[] columns = {
                 COLUMN_ALUMNO_ID,
                 COLUMN_ALUMNO_MATRICULA,
                 COLUMN_ALUMNO_NOMBRE,
-                COLUMN_ALUMNO_IDEVENTO,
                 COLUMN_ALUMNO_CARRERA
         };
+        String query2 = null, b = null;
         // sorting orders
-        String sortOrder =
-                COLUMN_ALUMNO_NOMBRE + " ASC";
-        List<AlumnoEvento> studentsList = new ArrayList<AlumnoEvento>();
+
+        List<Alumno> alumnoList = new ArrayList<Alumno>();
 
         SQLiteDatabase db = this.getReadableDatabase();
+
 
         // query the user table
         /**
@@ -147,26 +159,86 @@ public class DatabaseHelper extends SQLiteOpenHelper{
          * SQL query equivalent to this query function is
          * SELECT user_id,user_name,user_email,user_password FROM user ORDER BY user_name;
          */
-        Cursor cursor = db.query(TABLE_ALUMNOEVENTO, //Table to query
-                columns,    //columns to return
-                null,        //columns for the WHERE clause
-                null,        //The values for the WHERE clause
-                null,       //group the rows
-                null,       //filter by row groups
-                sortOrder); //The sort order
+
+        Cursor cursor = db.query(TABLE_ALUMNO,
+                columns,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        // Traversing through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                b = cursor.getString(1);
+
+                if(b.equals(matricula)){
+                    query2 = cursor.getString(0);
+                    break;
+                }
+            }
+            while (cursor.moveToNext());
+
+
+
+        }
+        cursor.close();
+        db.close();
+
+        // return user list
+        return query2;
+    }
+
+
+
+    /**
+     * This method is to fetch all user and return the list of user records
+     *
+     * @return list
+     */
+    public List<Alumno> getAllStudents(Alumno alumno) {
+        // array of columns to fetch
+        String[] columns = {
+                COLUMN_ALUMNOEVENTO_IDALUMNO,
+                COLUMN_ALUMNO_ID
+        };
+
+        // sorting orders
+        String sortOrder =
+                COLUMN_ALUMNOEVENTO_IDALUMNO + " ASC";
+        List<Alumno> studentsList = new ArrayList<Alumno>();
+
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "select * from " + TABLE_ALUMNOEVENTO + " inner join " + TABLE_ALUMNO
+                + " on " + COLUMN_ALUMNOEVENTO_IDALUMNO + " = " + COLUMN_ALUMNO_ID
+                + " where " + COLUMN_ALUMNO_MATRICULA + " = " + alumno;
+
+        // query the user table
+        /**
+         * Here query function is used to fetch records from user table this function works like we use sql query.
+         * SQL query equivalent to this query function is
+         * SELECT user_id,user_name,user_email,user_password FROM user ORDER BY user_name;
+         */
+        Cursor cursor = db.rawQuery(
+                query,
+                null
+        );
 
 
         // Traversing through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
-                AlumnoEvento alumnoEvento = new AlumnoEvento();
-                alumnoEvento.setId(Integer.parseInt(cursor.getString(cursor.getColumnIndex(COLUMN_ALUMNO_ID))));
-                alumnoEvento.setMatricula(cursor.getString(cursor.getColumnIndex(COLUMN_ALUMNO_MATRICULA)));
-                alumnoEvento.setNombre(cursor.getString(cursor.getColumnIndex(COLUMN_ALUMNO_NOMBRE)));
-                alumnoEvento.setIdEvento(Integer.parseInt(cursor.getString(cursor.getColumnIndex(COLUMN_ALUMNO_IDEVENTO))));
-                alumnoEvento.setCarrera(cursor.getString(cursor.getColumnIndex(COLUMN_ALUMNO_CARRERA)));
+                alumno = new Alumno();
+                alumno.setId(Integer.parseInt(cursor.getString(cursor.getColumnIndex(COLUMN_ALUMNO_ID))));
+                alumno.setMatricula(cursor.getString(cursor.getColumnIndex(COLUMN_ALUMNO_MATRICULA)));
+                alumno.setNombre(cursor.getString(cursor.getColumnIndex(COLUMN_ALUMNO_NOMBRE)));
+                alumno.setCarrera(cursor.getString(cursor.getColumnIndex(COLUMN_ALUMNO_CARRERA)));
                 // Adding user record to list
-                studentsList.add(alumnoEvento);
+                studentsList.add(alumno);
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -174,6 +246,93 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
         // return students list
         return studentsList;
+    }
+
+    public List<Alumno> getAllStudents(int idevento) {
+        // array of columns to fetch
+        String[] columns = {
+                COLUMN_ALUMNOEVENTO_IDALUMNO,
+                COLUMN_ALUMNO_ID
+        };
+
+        // sorting orders
+        String sortOrder =
+                COLUMN_ALUMNOEVENTO_IDALUMNO + " ASC";
+        List<Alumno> studentsList = new ArrayList<Alumno>();
+
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "select * from " + TABLE_ALUMNOEVENTO + " inner join " + TABLE_ALUMNO
+                + " on " + COLUMN_ALUMNOEVENTO_IDALUMNO + " = " + COLUMN_ALUMNO_ID
+                + " where " + COLUMN_ALUMNOEVENTO_IDEVENTO + " = " + idevento;
+
+        // query the user table
+        /**
+         * Here query function is used to fetch records from user table this function works like we use sql query.
+         * SQL query equivalent to this query function is
+         * SELECT user_id,user_name,user_email,user_password FROM user ORDER BY user_name;
+         */
+        Cursor cursor = db.rawQuery(
+                query,
+                null
+        );
+
+
+        // Traversing through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                Alumno alumno = new Alumno();
+                alumno.setId(Integer.parseInt(cursor.getString(cursor.getColumnIndex(COLUMN_ALUMNO_ID))));
+                alumno.setMatricula(cursor.getString(cursor.getColumnIndex(COLUMN_ALUMNO_MATRICULA)));
+                alumno.setNombre(cursor.getString(cursor.getColumnIndex(COLUMN_ALUMNO_NOMBRE)));
+                alumno.setCarrera(cursor.getString(cursor.getColumnIndex(COLUMN_ALUMNO_CARRERA)));
+                // Adding user record to list
+                studentsList.add(alumno);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+
+        // return students list
+
+        return studentsList;
+    }
+
+    public void addEvento(Events events) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_EVENT_NAME, events.getEvento());
+        values.put(COLUMN_EVENT_DESCRIPTION, events.getDescripcion());
+        values.put(COLUMN_EVENT_CUPO, events.getCupo());
+
+        // Inserting Row
+        db.insert(TABLE_EVENTS, null, values);
+        db.close();
+    }
+
+    public void updateEvent(Events events) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_EVENT_NAME, events.getEvento());
+        values.put(COLUMN_EVENT_DESCRIPTION, events.getDescripcion());
+        values.put(COLUMN_EVENT_CUPO, events.getCupo());
+
+        // updating row
+        db.update(TABLE_EVENTS, values, COLUMN_EVENT_ID + " = ?",
+                new String[]{String.valueOf(events.getId())});
+        db.close();
+    }
+
+    public void deleteEvent(Events events) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        // delete user record by id
+        db.delete(TABLE_EVENTS, COLUMN_EVENT_ID + " = ?",
+                new String[]{String.valueOf(events.getId())});
+        db.close();
     }
 
     public List<Events> getAllEvents() {
@@ -224,6 +383,8 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         // return user list
         return eventsList;
     }
+
+
 
     /**
      * This method to check user exist or not
@@ -307,6 +468,76 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
         cursor.close();
         db.close();
+        if (cursorCount > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean checkAlumno(int idevento, String matricula) {
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "select * from " + TABLE_ALUMNOEVENTO + " inner join " + TABLE_ALUMNO
+                + " on " + COLUMN_ALUMNOEVENTO_IDALUMNO + " = " + COLUMN_ALUMNO_ID
+                + " where " + COLUMN_ALUMNOEVENTO_IDEVENTO + " = " + idevento + " and "
+                + COLUMN_ALUMNO_MATRICULA + " = " + matricula;
+
+        // query alumno table with condition
+        /**
+         * Here query function is used to fetch records from user table this function works like we use sql query.
+         * SQL query equivalent to this query function is
+         * SELECT user_id FROM user WHERE user_email = 'jack@androidtutorialshub.com';
+         */
+        Cursor cursor = db.rawQuery(
+                query,                      //filter by row groups
+                null
+        );                      //The sort order
+
+
+        int cursorCount = cursor.getCount();
+        cursor.close();
+        db.close();
+
+        if (cursorCount > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean checkEvent(String evento) {
+
+        // array of columns to fetch
+        String[] columns = {
+                COLUMN_EVENT_ID
+        };
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // selection criteria
+        String selection = COLUMN_EVENT_NAME + " = ?";
+
+        // selection argument
+        String[] selectionArgs = {evento};
+
+        // query user table with condition
+        /**
+         * Here query function is used to fetch records from user table this function works like we use sql query.
+         * SQL query equivalent to this query function is
+         * SELECT user_id FROM user WHERE user_email = 'jack@androidtutorialshub.com';
+         */
+        Cursor cursor = db.query(TABLE_EVENTS, //Table to query
+                columns,                    //columns to return
+                selection,                  //columns for the WHERE clause
+                selectionArgs,              //The values for the WHERE clause
+                null,                       //group the rows
+                null,                      //filter by row groups
+                null);                      //The sort order
+        int cursorCount = cursor.getCount();
+        cursor.close();
+        db.close();
+
         if (cursorCount > 0) {
             return true;
         }
