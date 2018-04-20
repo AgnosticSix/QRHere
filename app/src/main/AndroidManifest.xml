@@ -34,6 +34,9 @@
         <activity
             android:name=".StudentsListActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".MatriculaActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

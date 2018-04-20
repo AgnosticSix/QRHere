@@ -1,6 +1,7 @@
 package com.upc.agnosticsix.qrhere;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -13,6 +14,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.support.v4.widget.SwipeRefreshLayout;
 
 import com.google.zxing.Result;
 
@@ -27,9 +29,10 @@ import model.Alumno;
 import model.AlumnoEvento;
 import sql.DatabaseHelper;
 
-public class StudentsListActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler {
+public class StudentsListActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler, SwipeRefreshLayout.OnRefreshListener {
     private ZXingScannerView mScannerView;
     private AppCompatActivity activity = StudentsListActivity.this;
+    SwipeRefreshLayout mSwipeRefreshLayout;
     private AppCompatTextView textViewNombre;
     private RecyclerView recyclerViewStudents;
     private List<AlumnoEvento> stuList;
@@ -41,7 +44,6 @@ public class StudentsListActivity extends AppCompatActivity implements ZXingScan
     private int idEvento, idAlumno, postId;
     private int idEventoFromIntent;
     private AlumnoEvento alumnoEvento;
-    private Alumno alumno;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +54,19 @@ public class StudentsListActivity extends AppCompatActivity implements ZXingScan
         initObjects();
     }
 
+
     private void initViews() {
         textViewNombre = (AppCompatTextView) findViewById(R.id.textViewNombre);
         recyclerViewStudents = (RecyclerView) findViewById(R.id.recyclerViewStudents);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_blue_dark);
+
+
+
     }
 
     private void initObjects() {
@@ -73,12 +85,22 @@ public class StudentsListActivity extends AppCompatActivity implements ZXingScan
 
 
 
+
         idEventoFromIntent = getIntent().getIntExtra("idevento", idEvento);
-        Log.d("eyw", "" + idEventoFromIntent);
+        //Log.d("eyw", "" + idEventoFromIntent);
 
         //textViewNombre.setText(nameFromIntent);
 
         getDataFromSQLite();
+    }
+
+    @Override
+    public void onRefresh() {
+
+        // Fetching data from server
+        getDataFromSQLite();
+        mSwipeRefreshLayout.setRefreshing(false);
+
     }
 
     public void QrScanner(View view){
@@ -86,6 +108,12 @@ public class StudentsListActivity extends AppCompatActivity implements ZXingScan
         setContentView(mScannerView);
         mScannerView.setResultHandler(this); // Register ourselves as a handler for scan results.
         mScannerView.startCamera();         // Start camera
+    }
+
+    public void Matricula(View view){
+        Intent intent = new Intent(getApplicationContext(), MatriculaActivity.class);
+        intent.putExtra("idevento", idEventoFromIntent);
+        startActivity(intent);
     }
 
     @Override
@@ -133,7 +161,7 @@ public class StudentsListActivity extends AppCompatActivity implements ZXingScan
             protected Void doInBackground(Void... params) {
                 studentList.clear();
                 studentList.addAll(databaseHelper.getAllStudents(idEventoFromIntent));
-                Log.d("ey", "" + idEventoFromIntent);
+                //Log.d("ey", "" + idEventoFromIntent);
 
 
                 return null;

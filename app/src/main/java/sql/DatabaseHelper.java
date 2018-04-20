@@ -192,6 +192,58 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     }
 
 
+    public List<Alumno> getAlumnoM(String matricula){
+        // array of columns to fetch
+        String[] columns = {
+                COLUMN_ALUMNO_ID,
+                COLUMN_ALUMNO_MATRICULA,
+                COLUMN_ALUMNO_NOMBRE,
+                COLUMN_ALUMNO_CARRERA
+        };
+
+        String query = "select * from " + TABLE_ALUMNO
+                + " where " + COLUMN_ALUMNO_MATRICULA + " = '" + matricula + "'";
+
+        // sorting orders
+        String sortOrder =
+                COLUMN_ALUMNO_NOMBRE + " ASC";
+        List<Alumno> alumnoList = new ArrayList<Alumno>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String selection = COLUMN_ALUMNO_MATRICULA + " = ?";
+        String[] selectionArgs = { matricula };
+
+        // query the user table
+        /**
+         * Here query function is used to fetch records from user table this function works like we use sql query.
+         * SQL query equivalent to this query function is
+         * SELECT user_id,user_name,user_email,user_password FROM user ORDER BY user_name;
+         */
+        Cursor cursor = db.rawQuery(
+                query,
+                null
+        );
+
+
+        // Traversing through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                Alumno alumno = new Alumno();
+                alumno.setId(Integer.parseInt(cursor.getString(cursor.getColumnIndex(COLUMN_ALUMNO_ID))));
+                alumno.setMatricula(cursor.getString(cursor.getColumnIndex(COLUMN_ALUMNO_MATRICULA)));
+                alumno.setNombre(cursor.getString(cursor.getColumnIndex(COLUMN_ALUMNO_NOMBRE)));
+                alumno.setCarrera(cursor.getString(cursor.getColumnIndex(COLUMN_ALUMNO_CARRERA)));
+                // Adding event record to list
+                alumnoList.add(alumno);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+
+        // return user list
+        return alumnoList;
+    }
 
     /**
      * This method is to fetch all user and return the list of user records
@@ -389,46 +441,10 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     /**
      * This method to check user exist or not
      *
-     * @param email
+     * @param matricula
      * @return true/false
      */
-    public boolean checkUser(String email) {
 
-        // array of columns to fetch
-        String[] columns = {
-                COLUMN_USER_ID
-        };
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        // selection criteria
-        String selection = COLUMN_USER_NAME + " = ?";
-
-        // selection argument
-        String[] selectionArgs = {email};
-
-        // query user table with condition
-        /**
-         * Here query function is used to fetch records from user table this function works like we use sql query.
-         * SQL query equivalent to this query function is
-         * SELECT user_id FROM user WHERE user_email = 'jack@androidtutorialshub.com';
-         */
-        Cursor cursor = db.query(TABLE_USER, //Table to query
-                columns,                    //columns to return
-                selection,                  //columns for the WHERE clause
-                selectionArgs,              //The values for the WHERE clause
-                null,                       //group the rows
-                null,                      //filter by row groups
-                null);                      //The sort order
-        int cursorCount = cursor.getCount();
-        cursor.close();
-        db.close();
-
-        if (cursorCount > 0) {
-            return true;
-        }
-
-        return false;
-    }
 
     /**
      * This method to check user exist or not
@@ -468,6 +484,44 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
         cursor.close();
         db.close();
+        if (cursorCount > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean checkMatricula(String matricula) {
+
+        // array of columns to fetch
+        String[] columns = {
+                COLUMN_ALUMNO_MATRICULA
+        };
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // selection criteria
+        String selection = COLUMN_ALUMNO_MATRICULA + " = ?";
+
+        // selection argument
+        String[] selectionArgs = {matricula};
+
+        // query user table with condition
+        /**
+         * Here query function is used to fetch records from user table this function works like we use sql query.
+         * SQL query equivalent to this query function is
+         * SELECT user_id FROM user WHERE user_email = 'jack@androidtutorialshub.com';
+         */
+        Cursor cursor = db.query(TABLE_ALUMNO, //Table to query
+                columns,                    //columns to return
+                selection,                  //columns for the WHERE clause
+                selectionArgs,              //The values for the WHERE clause
+                null,                       //group the rows
+                null,                      //filter by row groups
+                null);                      //The sort order
+        int cursorCount = cursor.getCount();
+        cursor.close();
+        db.close();
+
         if (cursorCount > 0) {
             return true;
         }
