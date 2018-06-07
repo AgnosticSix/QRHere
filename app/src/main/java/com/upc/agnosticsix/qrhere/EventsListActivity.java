@@ -20,6 +20,11 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.zxing.Result;
 
 import java.util.ArrayList;
@@ -43,6 +48,8 @@ public class EventsListActivity extends AppCompatActivity{
     private Events events;
     private String tag;
     public int postId;
+    private FirebaseDatabase database;
+    private DatabaseReference reference;
     //private EventsRecyclerAdapter.OnItemClickListener listener;
 
 
@@ -80,33 +87,63 @@ public class EventsListActivity extends AppCompatActivity{
         });
 
         recyclerViewEvents.setAdapter(eventsRecyclerAdapter);
-        databaseHelper = new DatabaseHelper(activity);
+        database = FirebaseDatabase.getInstance();
+        reference = database.getReference("events");
+        //databaseHelper = new DatabaseHelper(activity);
         //events = new Events();
 
         //String nameFromIntent = getIntent().getStringExtra("event_name");
         //textViewNombre.setText(nameFromIntent);
 
-        getDataFromSQLite();
+        updateList();
     }
 
-
-
-    private void getDataFromSQLite() {
-        // AsyncTask is used that SQLite operation not blocks the UI Thread.
-        new AsyncTask<Void, Void, Void>() {
+    private void updateList(){
+        reference.addChildEventListener(new ChildEventListener() {
             @Override
-            protected Void doInBackground(Void... params) {
-                eventsList.clear();
-                eventsList.addAll(databaseHelper.getAllEvents());
-
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                eventsList.add(dataSnapshot.getValue(Events.class));
                 eventsRecyclerAdapter.notifyDataSetChanged();
             }
-        }.execute();
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                events = dataSnapshot.getValue(Events.class);
+                int index = getItemIndex(events);
+                eventsList.set(index, events);
+                eventsRecyclerAdapter.notifyItemChanged(index);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                events = dataSnapshot.getValue(Events.class);
+                int index = getItemIndex(events);
+                eventsList.remove(index);
+                eventsRecyclerAdapter.notifyItemRemoved(index);
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private int getItemIndex(Events events){
+        int index = -1;
+
+        for(int i = 0; i < eventsList.size(); i++){
+            if(eventsList.get(i).getId() == events.getId()){
+                index = i;
+                break;
+
+            }
+        }
+        return index;
     }
 }

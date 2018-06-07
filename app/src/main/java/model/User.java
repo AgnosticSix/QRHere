@@ -36,19 +36,5 @@ public class User {
         this.password = password;
     }
 
-    public String toJSON(){
 
-        JSONObject jsonObject= new JSONObject();
-        try {
-            jsonObject.put("id", getId());
-            jsonObject.put("username", getName());
-            jsonObject.put("password", getPassword());
-
-            return jsonObject.toString();
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return "";
-        }
-
-    }
 }

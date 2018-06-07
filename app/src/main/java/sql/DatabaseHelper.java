@@ -28,26 +28,26 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
     // User table name
     private static final String TABLE_USER = "user";
-    public static final String TABLE_EVENTS = "events";
+    public static final String TABLE_EVENTS = "eventos";
     private static final String TABLE_ALUMNOEVENTO = "alumnoevento";
     private static final String TABLE_ALUMNO = "alumno";
 
 
     // User Table Columns names
     private static final String COLUMN_USER_ID = "user_id";
-    private static final String COLUMN_USER_NAME = "user_name";
-    private static final String COLUMN_USER_PASSWORD = "user_password";
-    private static final String COLUMN_EVENT_ID = "event_id";
-    private static final String COLUMN_EVENT_NAME = "event_name";
-    private static final String COLUMN_EVENT_DESCRIPTION = "event_description";
-    private static final String COLUMN_EVENT_CUPO = "event_cupo";
-    private static final String COLUMN_ALUMNOEVENTO_ID = "ae_id";
-    private static final String COLUMN_ALUMNOEVENTO_IDALUMNO = "alumnoe_id";
-    private static final String COLUMN_ALUMNOEVENTO_IDEVENTO = "event_id";
-    private static final String COLUMN_ALUMNO_ID = "alumno_id";
-    private static final String COLUMN_ALUMNO_MATRICULA = "alumno_matricula";
-    private static final String COLUMN_ALUMNO_NOMBRE = "alumno_nombre";
-    private static final String COLUMN_ALUMNO_CARRERA = "alumno_carrera";
+    private static final String COLUMN_USER_NAME = "username";
+    private static final String COLUMN_USER_PASSWORD = "password";
+    private static final String COLUMN_EVENT_ID = "id_evento";
+    private static final String COLUMN_EVENT_NAME = "nombre";
+    private static final String COLUMN_EVENT_DESCRIPTION = "descripcion";
+    private static final String COLUMN_EVENT_CUPO = "cupo";
+    private static final String COLUMN_ALUMNOEVENTO_ID = "id_ae";
+    private static final String COLUMN_ALUMNOEVENTO_IDALUMNO = "id_alumnoe";
+    private static final String COLUMN_ALUMNOEVENTO_IDEVENTO = "id_eventoa";
+    private static final String COLUMN_ALUMNO_ID = "id_alumno";
+    private static final String COLUMN_ALUMNO_MATRICULA = "matricula";
+    private static final String COLUMN_ALUMNO_NOMBRE = "nombrea";
+    private static final String COLUMN_ALUMNO_CARRERA = "carrera";
 
     // create table sql query
     private String CREATE_USER_TABLE = "CREATE TABLE " + TABLE_USER + "("

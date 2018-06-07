@@ -9,6 +9,8 @@ public class Events {
     private String descripcion;
     private String cupo;
 
+
+
     public int getId() {
         return id;
     }
@@ -37,20 +39,5 @@ public class Events {
 
     public void setCupo(String cupo) { this.cupo = cupo; }
 
-    public String toJSON(){
 
-        JSONObject jsonObject= new JSONObject();
-        try {
-            jsonObject.put("id", getId());
-            jsonObject.put("evento", getEvento());
-            jsonObject.put("descripcion", getDescripcion());
-            jsonObject.put("cupo", getCupo());
-
-            return jsonObject.toString();
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return "";
-        }
-
-    }
 }
